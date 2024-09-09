@@ -1,0 +1,22 @@
+name: test
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed
+
+jobs:
+  echo:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "1" $GITHUB_REF
+          echo "2" ${{ github.ref }}
+          echo "3" ${{ github.ref_name }}
+          echo "4" ${{ github.head_ref }}
+          echo "5" ${{ github.base_ref }}
+          echo "6" ${{ github.event.pull_request.merged }}
+          echo "7" ${{ github.event.pull_request.base.ref }}
+          echo "8" ${{ github.event.pull_request.head.ref }}
