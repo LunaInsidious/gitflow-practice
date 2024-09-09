@@ -2,6 +2,11 @@ name: test
 
 on:
   pull_request:
+    types:
+        - opened
+        - synchronize
+        - closed
+        - edited
     branches: develop
 
 jobs:
