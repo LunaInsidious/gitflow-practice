@@ -25,7 +25,7 @@ jobs:
           echo "7" ${{ github.event.pull_request.base.ref }}
           echo "8" ${{ github.event.pull_request.head.ref }}
       - name: Use common publish workflow
-        uses: ./.github/actions/action.yml
+        uses: ./.github/actions
         with:
           script: "test"
           push_branches: "test1,test2"
