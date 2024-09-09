@@ -36,4 +36,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: echo
-        run: echo "${{ github.event.inputs.script }} ${{ github.event.inputs.push_branches }} ${{ github.event.inputs.create_tag }}"
+        run: echo "${{ inputs.script }} ${{ inputs.push_branches }} ${{ inputs.create_tag }}"
