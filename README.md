@@ -1,2 +1,4 @@
 # gitflow-practice
-https://github.com/nvie/gitflowを触ってみる
+https://github.com/nvie/gitflow
+
+を触ってみる
