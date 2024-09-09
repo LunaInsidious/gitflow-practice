@@ -23,3 +23,6 @@ jobs:
           echo "6" ${{ github.event.pull_request.merged }}
           echo "7" ${{ github.event.pull_request.base.ref }}
           echo "8" ${{ github.event.pull_request.head.ref }}
+          echo "9" ${{ github.event.pull_request.changes.base.ref }}
+          echo "10" ${{ github.event.pull_request.changes.body.from }}
+          echo "11" ${{ github.event.pull_request.changes.title.from }}
