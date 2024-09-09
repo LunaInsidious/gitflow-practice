@@ -11,6 +11,7 @@ on:
 
 jobs:
   echo:
+    if: startsWith(github.head_ref, 'feature/')
     runs-on: ubuntu-latest
     steps:
       - run: |
