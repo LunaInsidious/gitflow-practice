@@ -24,8 +24,10 @@ jobs:
           echo "6" ${{ github.event.pull_request.merged }}
           echo "7" ${{ github.event.pull_request.base.ref }}
           echo "8" ${{ github.event.pull_request.head.ref }}
-      - name: Use common publish workflow
-        uses: ./.github/actions/publish
-        with:
-          script: "test"
-          push_branches: "test1,test2"
+
+  finish:
+    if: startsWith(github.head_ref, 'feature/')
+    uses: ./.github/workflows/common.yml
+    with:
+      script: "test"
+      push_branches: "test1,test2"
