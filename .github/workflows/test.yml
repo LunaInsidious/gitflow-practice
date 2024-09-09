@@ -14,7 +14,8 @@ jobs:
     if: startsWith(github.head_ref, 'feature/')
     runs-on: ubuntu-latest
     steps:
-      - run: |
+      - name: echo
+        run: |
           echo "1" $GITHUB_REF
           echo "2" ${{ github.ref }}
           echo "3" ${{ github.ref_name }}
@@ -23,6 +24,8 @@ jobs:
           echo "6" ${{ github.event.pull_request.merged }}
           echo "7" ${{ github.event.pull_request.base.ref }}
           echo "8" ${{ github.event.pull_request.head.ref }}
-          echo "9" ${{ github.event.pull_request.changes.base.ref }}
-          echo "10" ${{ github.event.pull_request.changes.body.from }}
-          echo "11" ${{ github.event.pull_request.changes.title.from }}
+      - name: Use common publish workflow
+        uses: ./.github/actions/action.yml
+        with:
+          script: "test"
+          push_branches: "test1,test2"
