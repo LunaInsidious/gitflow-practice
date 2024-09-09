@@ -9,6 +9,12 @@ on:
         - edited
     branches: develop
 
+permissions:
+  contents: write
+  packages: write
+  # workaround for https://github.com/cli/cli/issues/6274
+  repository-projects: read
+
 jobs:
   echo:
     if: startsWith(github.head_ref, 'feature/')
