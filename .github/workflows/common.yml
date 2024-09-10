@@ -37,7 +37,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: current branch
         run: |
-          git checkout ${{ github.base_ref }}
+          git fetch origin
+          git checkout ${{ github.head_ref }}
           git rev-parse --abbrev-ref HEAD
       - name: echo
         run: echo "${{ inputs.script }} ${{ inputs.push_branches }} ${{ inputs.create_tag }}"
