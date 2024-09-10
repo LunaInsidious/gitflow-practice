@@ -36,6 +36,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: current branch
-        run: git rev-parse --abbrev-ref HEAD
+        run: git log
       - name: echo
         run: echo "${{ inputs.script }} ${{ inputs.push_branches }} ${{ inputs.create_tag }}"
