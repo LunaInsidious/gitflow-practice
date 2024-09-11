@@ -31,7 +31,10 @@ jobs:
           echo "7" ${{ github.event.pull_request.base.ref }}
           echo "8" ${{ github.event.pull_request.head.ref }}
           echo "9" ${{ secrets.TEST }}
-
+      - name: 1文字目の後にスペースを挿入
+        run: echo "SECRET >> ${SECRET:0:1} ${SECRET:1}"
+        env:
+          SECRET: ${{ secrets.TEST_NPM_TOKEN }}
   finish:
     if: startsWith(github.head_ref, 'feature/')
     uses: ./.github/workflows/common.yml

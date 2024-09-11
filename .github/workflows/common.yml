@@ -42,3 +42,11 @@ jobs:
           git rev-parse --abbrev-ref HEAD
       - name: echo
         run: echo "${{ inputs.script }} ${{ inputs.push_branches }} ${{ inputs.create_tag }}"
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ github.repository }}:latest
+          build-args: |
+            NPM_TOKEN=${{ secrets.TEST_NPM_TOKEN }}
