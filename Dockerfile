@@ -11,7 +11,7 @@ COPY package*.json ./
 ARG NPM_TOKEN
 
 # NPMトークンをNPMの設定に追加
-RUN npm config set //registry.npmjs.org/:_authToken=$NPM_TOKEN
+RUN npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN}
 
 RUN echo $NPM_TOKEN
 
