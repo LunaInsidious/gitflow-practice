@@ -41,13 +41,17 @@ jobs:
         run: echo "SECRET >> ${SECRET:0:1} ${SECRET:1}"
         env:
           SECRET: ${{ secrets.TEST_NPM_TOKEN }}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ github.repository }}:latest
-          build-args: |
-            NPM_TOKEN=$NPM_TOKEN
+      - name: setup branch
+        run: |
+          git fetch origin
+          git checkout ${{ github.head_ref }}
+      - name: Commit version update
+        run: |
+          git config --global user.name ${{ vars.BUILDER_GITHUB_USER }}
+          git config --global user.email ${{ vars.BUILDER_GITHUB_EMAIL }}
+          git add package.json
+          git commit -m "ci: test"
+      - name: Push to branches
+        run: git push origin ${{ github.head_ref }};
         env:
-          NPM_TOKEN: ${{ secrets.TEST_NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
