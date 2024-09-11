@@ -47,6 +47,7 @@ jobs:
           git checkout ${{ github.head_ref }}
       - name: Commit version update
         run: |
+          echo "ci test ${{ github.run_number }}" > ./sample/sample1.txt
           git config --global user.name ${{ vars.BUILDER_GITHUB_USER }}
           git config --global user.email ${{ vars.BUILDER_GITHUB_EMAIL }}
           git add ./sample/sample1.txt
