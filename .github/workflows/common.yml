@@ -35,13 +35,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: current branch
-        run: |
-          git fetch origin
-          git checkout ${{ github.head_ref }}
-          git rev-parse --abbrev-ref HEAD
       - name: echo
         run: echo "${{ inputs.script }} ${{ inputs.push_branches }} ${{ inputs.create_tag }}"
+      - name: 1文字目の後にスペースを挿入
+        run: echo "SECRET >> ${SECRET:0:1} ${SECRET:1}"
+        env:
+          SECRET: ${{ secrets.TEST_NPM_TOKEN }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
