@@ -1,0 +1,26 @@
+name: Commit Message Workflow
+
+on:
+  push
+
+jobs:
+  check-commit-message:
+    if: |
+      startsWith(github.event.head_commit.message, 'ci: test')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Get commit message
+        id: commit-message
+        run: |
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+
+      - name: Run if message contains 'run-action'
+        if: contains(github.event.head_commit.message, 'run-action')
+        run: echo "Running because the commit message contains 'run-action'"
+
+      - name: Run if message contains 'skip-action'
+        if: contains(github.event.head_commit.message, 'skip-action')
+        run: echo "Skipping because the commit message contains 'skip-action'"
