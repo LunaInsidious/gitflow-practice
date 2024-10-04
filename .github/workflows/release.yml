@@ -1,0 +1,43 @@
+name: test-release
+
+on:
+  pull_request:
+    types:
+        - opened
+        - synchronize
+        - closed
+        - edited
+    branches: main
+
+permissions:
+  contents: write
+  packages: write
+  # workaround for https://github.com/cli/cli/issues/6274
+  repository-projects: read
+
+jobs:
+  echo:
+    if: startsWith(github.head_ref, 'release/') || startsWith(github.head_ref, 'hotfix/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo
+        run: |
+          echo "1" $GITHUB_REF
+          echo "2" ${{ github.ref }}
+          echo "3" ${{ github.ref_name }}
+          echo "4" ${{ github.head_ref }}
+          echo "5" ${{ github.base_ref }}
+          echo "6" ${{ github.event.pull_request.merged }}
+          echo "7" ${{ github.event.pull_request.base.ref }}
+          echo "8" ${{ github.event.pull_request.head.ref }}
+          echo "9" ${{ secrets.TEST }}
+      - name: 1文字目の後にスペースを挿入
+        run: echo "SECRET >> ${SECRET:0:1} ${SECRET:1}"
+        env:
+          SECRET: ${{ secrets.TEST_NPM_TOKEN }}
+  finish:
+    if: startsWith(github.head_ref, 'feature/')
+    uses: ./.github/workflows/common.yml
+    with:
+      script: "test"
+      push_branches: "test1,test2"
