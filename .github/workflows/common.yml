@@ -35,25 +35,44 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-      - name: echo
-        run: echo "${{ inputs.script }} ${{ inputs.push_branches }} ${{ inputs.create_tag }}"
-      - name: 1文字目の後にスペースを挿入
-        run: echo "SECRET >> ${SECRET:0:1} ${SECRET:1}"
+      - name: Get version to be released
+        id: get-version
+        run: node -e "console.log('version=' + require('./package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Get package name
+        id: get-name
+        run: node -e "console.log('name=' + require('./package.json').name)" >> "$GITHUB_OUTPUT"
+      - name: Check if the image for the version is already pushed
+        id: tag-list
+        run: |
+          echo "taglist=$(curl -H 'Authorization: Bearer $(echo ${GITHUB_TOKEN} | base64)' https://ghcr.io/v2/${GITHUB_REPOSITORY_OWNER}/${PACKAGE_NAME}/tags/list)" >> "$GITHUB_OUTPUT"
         env:
-          SECRET: ${{ secrets.TEST_NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_NAME: ${{ steps.get-name.outputs.name }}
       - name: setup branch
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
         run: |
           git fetch origin
+          for branch in $(echo "${{ inputs.push_branches }}" | tr ',' '\n'); do
+              git checkout $branch;
+              git pull
+          done
           git checkout ${{ github.head_ref }}
+      - name: Update version in package.json
+        id: update-version
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
+        run: node ${{ inputs.script }}
       - name: Commit version update
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
         run: |
-          echo "ci test ${{ github.run_number }}" > ./sample/sample1.txt
           git config --global user.name ${{ vars.BUILDER_GITHUB_USER }}
           git config --global user.email ${{ vars.BUILDER_GITHUB_EMAIL }}
-          git add ./sample/sample1.txt
-          git commit -m "ci: test"
+          git add package.json
+          git commit -m "ci: update version to ${{ steps.update-version.outputs.version }}"
       - name: Push to branches
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
         run: |
-          git push origin ${{ github.head_ref }};
+          for branch in $(echo "${{ inputs.push_branches }}" | tr ',' '\n'); do
+            git push origin HEAD:refs/heads/$branch;
+          done
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
