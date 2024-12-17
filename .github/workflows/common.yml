@@ -1,0 +1,78 @@
+name: common publish workflow
+
+on:
+  workflow_call:
+    inputs:
+      script:
+        type: string
+        description: |
+            package.jsonアップデートのために実行するスクリプトのパス。
+            引数がある場合も半角スペースを入れれば認識する。
+        required: true
+      push_branches:
+        type: string
+        description: push対象のブランチ名をコンマ区切りで指定する
+        required: true
+      create_tag:
+        type: boolean
+        description: |
+            タグを作成するかどうかを指定する。
+            trueの場合はタグを作成する。
+        required: false
+        default: false
+
+permissions:
+  contents: write
+  packages: write
+  # workaround for https://github.com/cli/cli/issues/6274
+  repository-projects: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get version to be released
+        id: get-version
+        run: node -e "console.log('version=' + require('./package.json').version)" >> "$GITHUB_OUTPUT"
+      - name: Get package name
+        id: get-name
+        run: node -e "console.log('name=' + require('./package.json').name)" >> "$GITHUB_OUTPUT"
+      - name: Check if the image for the version is already pushed
+        id: tag-list
+        run: |
+          echo "taglist=$(curl -H 'Authorization: Bearer $(echo ${GITHUB_TOKEN} | base64)' https://ghcr.io/v2/${GITHUB_REPOSITORY_OWNER}/${PACKAGE_NAME}/tags/list)" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGE_NAME: ${{ steps.get-name.outputs.name }}
+      - name: setup branch
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
+        run: |
+          git fetch origin
+          for branch in $(echo "${{ inputs.push_branches }}" | tr ',' '\n'); do
+              git checkout $branch;
+              git pull
+          done
+          git checkout ${{ github.head_ref }}
+      - name: Update version in package.json
+        id: update-version
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
+        run: node ${{ inputs.script }}
+      - name: Commit version update
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
+        run: |
+          git config --global user.name ${{ vars.BUILDER_GITHUB_USER }}
+          git config --global user.email ${{ vars.BUILDER_GITHUB_EMAIL }}
+          git add package.json
+          git commit -m "ci: update version to ${{ steps.update-version.outputs.version }}"
+      - name: Push to branches
+        if: ${{ !contains(fromJson(steps.tag-list.outputs.taglist).tags, steps.get-version.outputs.version) }}
+        run: |
+          for branch in $(echo "${{ inputs.push_branches }}" | tr ',' '\n'); do
+            git push origin HEAD:refs/heads/$branch;
+          done
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

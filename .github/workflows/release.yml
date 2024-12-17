@@ -1,0 +1,23 @@
+name: Publish for PullRequest
+
+on:
+  pull_request:
+    types:
+        - opened
+        - synchronize
+    branches:
+      - develop
+
+permissions:
+  contents: write
+  packages: write
+  # workaround for https://github.com/cli/cli/issues/6274
+  repository-projects: read
+
+jobs:
+  publish:
+    uses: ./.github/workflows/common.yml
+    with:
+      script: scripts/updateVersion.js
+      push_branches: main,develop
+      create_tag: false
