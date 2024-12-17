@@ -13,13 +13,6 @@ on:
         type: string
         description: push対象のブランチ名をコンマ区切りで指定する
         required: true
-      create_tag:
-        type: boolean
-        description: |
-            タグを作成するかどうかを指定する。
-            trueの場合はタグを作成する。
-        required: false
-        default: false
 
 permissions:
   contents: write
