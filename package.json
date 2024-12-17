@@ -1,6 +1,6 @@
 {
   "name": "gitflow-practice",
-  "version": "1.0.0",
+  "version": "1.0.0-rc.1",
   "description": "https://github.com/nvie/gitflow",
   "main": "index.js",
   "scripts": {
